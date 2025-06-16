@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "orders") // 'order'는 SQL 예약어인 경우가 많아 'orders' 사용을 권장합니다.
+@Table(name = "orders") // 'order'는 SQL 예약어인 경우가 많아 'orders' 사용
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order {
