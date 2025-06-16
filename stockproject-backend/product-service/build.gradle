@@ -1,0 +1,35 @@
+// 이 모듈이 Spring Boot 애플리케이션임을 선언합니다.
+plugins {
+    id 'org.springframework.boot'
+}
+
+// 이 모듈을 단독으로 실행 가능한 Jar 파일로 만들도록 설정합니다.
+bootJar {
+    enabled = true
+}
+
+// 'product-service' 모듈에서만 사용할 의존성(라이브러리)들을 선언합니다.
+dependencies {
+    // 웹 API(Controller) 개발에 필요한 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // JPA(데이터베이스 연동)와 하이버네이트에 필요한 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // MySQL 데이터베이스 드라이버 (런타임에만 필요)
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // TDD를 위한 테스트 의존성 (JUnit5, Mockito, AssertJ 등 포함)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    // --- H2 데이터베이스 추가 ---
+    // 테스트 실행 시에만 사용할 인메모리 데이터베이스
+    testRuntimeOnly 'com.h2database:h2'
+}
