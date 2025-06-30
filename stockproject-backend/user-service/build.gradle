@@ -13,6 +13,8 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux' // for WebClient
 	implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1' // for @PostConstruct
+	implementation 'com.h2database:h2:2.2.224'
+	testRuntimeOnly 'com.h2database:h2'
 
 	// JWT Library
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
