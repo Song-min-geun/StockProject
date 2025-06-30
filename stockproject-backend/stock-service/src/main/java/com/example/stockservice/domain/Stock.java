@@ -20,14 +20,15 @@ public class Stock {
     private Long quantity;
 
     //== 비즈니스 로직 ==//
-    /**
-     * 재고를 감소시킵니다.
-     * @param requestedQuantity 감소시킬 수량
-     */
     public void decrease(Long requestedQuantity) {
         if (this.quantity < requestedQuantity) {
             throw new IllegalArgumentException("재고가 부족합니다.");
         }
         this.quantity -= requestedQuantity;
+    }
+
+    public Stock(Long productId, Long quantity){
+        this.productId = productId;
+        this.quantity = quantity;
     }
 }
