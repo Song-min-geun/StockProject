@@ -1,6 +1,11 @@
 package com.example.orderservice.service;
 
+import com.example.dto.OrderCancelledEvent;
+import com.example.dto.OrderCreatedEvent;
 import com.example.orderservice.config.KafkaProducer;
+import com.example.orderservice.domain.Order;
+import com.example.orderservice.domain.OrderItem;
+import com.example.orderservice.domain.OrderStatus;
 import com.example.orderservice.dto.request.OrderItemDto;
 import com.example.orderservice.dto.request.OrderRequestDto;
 import com.example.orderservice.dto.response.OrderResponseDto;
@@ -16,6 +21,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -74,6 +81,22 @@ class OrderServiceTest {
         assertThat(responseDto.status()).isEqualTo("PENDING");
 
         // verify: KafkaProducer의 send 메소드가 1번 호출되었는지 검증
-        verify(kafkaProducer, times(1)).send(eq("order-created"), any());
+        verify(kafkaProducer, times(1)).send(eq("order-created"), any(OrderCreatedEvent.class));
+    }
+
+    @Test
+    @DisplayName("주문 취소 요청이 오면, 주문 상태를 변경하고 Kafka로 취소 이벤트 발행한다.")
+    void cancelOrder_Success(){
+        //given
+        String orderId = UUID.randomUUID().toString();
+        Order order = Order.createOrder(orderId,1L,List.of(new OrderItem(101L, 10000L,2)));
+        when(orderRepository.findByOrderId(orderId)).thenReturn(Optional.of(order));
+
+        //when
+        orderService.cancelOrder(orderId);
+
+        //then
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELED);
+        verify(kafkaProducer, times(1)).send(eq("order-cancelled"), any(OrderCancelledEvent.class));
     }
 }
