@@ -10,6 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/stockproject-backend" />
+            <option value="$PROJECT_DIR$/stockproject-backend/common-dto" />
             <option value="$PROJECT_DIR$/stockproject-backend/order-service" />
             <option value="$PROJECT_DIR$/stockproject-backend/product-service" />
             <option value="$PROJECT_DIR$/stockproject-backend/stock-service" />
