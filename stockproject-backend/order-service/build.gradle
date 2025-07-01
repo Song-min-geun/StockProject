@@ -23,6 +23,8 @@ dependencies {
 
     implementation 'org.springframework.kafka:spring-kafka'
 
+    testImplementation 'org.springframework.security:spring-security-test'
+
     // common-dto를 주입 받음
     implementation project(':stockproject-backend:common-dto')
 }
