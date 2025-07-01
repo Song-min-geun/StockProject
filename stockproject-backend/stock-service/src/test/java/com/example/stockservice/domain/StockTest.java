@@ -30,4 +30,17 @@ class StockTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("재고가 부족합니다.");
     }
+
+    @Test
+    @DisplayName("요청된 수량만큼 성공적으로 증가한다")
+    void increase_Success(){
+        //given
+        Stock stock = new Stock(1L,100L);
+
+        //when
+        stock.increase(50L);
+
+        //then
+        assertThat(stock.getQuantity()).isEqualTo(150L);
+    }
 }
