@@ -63,4 +63,8 @@ public class Order {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
     }
+
+    public void cancel(){
+        this.status = OrderStatus.CANCELED;
+    }
 }
