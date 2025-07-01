@@ -36,4 +36,10 @@ public class OrderController {
         OrderDetailResponseDto orderDetails = orderService.getOrderByOrderId(orderId);
         return ResponseEntity.ok(orderDetails);
     }
+
+    @DeleteMapping
+    public ResponseEntity<Void> cancelOrder(@PathVariable("orderId") String orderId){
+        orderService.cancelOrder(orderId);
+        return ResponseEntity.noContent().build(); // 204 No Content Error
+    }
 }
