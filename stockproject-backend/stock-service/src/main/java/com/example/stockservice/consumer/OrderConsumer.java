@@ -1,6 +1,6 @@
 package com.example.stockservice.consumer;
 
-import com.example.stockservice.dto.OrderCreatedEvent;
+import com.example.dto.OrderCreatedEvent;
 import com.example.stockservice.service.StockService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
