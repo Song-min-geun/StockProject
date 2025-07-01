@@ -23,7 +23,6 @@ dependencies {
 
     implementation 'org.springframework.kafka:spring-kafka'
 
+    // common-dto를 주입 받음
     implementation project(':stockproject-backend:common-dto')
-
-    implementation 'com.example:common-dto:1.0.0'
 }
