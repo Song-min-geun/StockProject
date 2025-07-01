@@ -1,15 +1,15 @@
 package com.example.orderservice.service;
 
+import com.example.dto.OrderCancelledEvent;
+import com.example.dto.OrderCreatedEvent;
+import com.example.dto.OrderItemPayload;
 import com.example.orderservice.config.KafkaProducer;
 import com.example.orderservice.domain.Order;
 import com.example.orderservice.domain.OrderItem;
-import com.example.orderservice.dto.response.OrderCreatedEvent;
+import com.example.orderservice.domain.OrderStatus;
+import com.example.orderservice.dto.response.*;
 import com.example.orderservice.dto.request.OrderItemDto;
-import com.example.orderservice.dto.request.OrderItemPayload;
 import com.example.orderservice.dto.request.OrderRequestDto;
-import com.example.orderservice.dto.response.OrderDetailResponseDto;
-import com.example.orderservice.dto.response.OrderResponseDto;
-import com.example.orderservice.dto.response.ProductResponseDto;
 import com.example.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -112,5 +112,32 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 
         return OrderDetailResponseDto.fromEntity(order);
+    }
+
+    @Override
+    @Transactional
+    public void cancelOrder(String orderId) {
+        Order order = orderRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalStateException("이미 처리된 주문은 취소할 수 없습니다.");
+        }
+
+        order.cancel();
+
+        List<OrderItemPayload> itemPayloads = order.getOrderItems().stream()
+                .map(item -> new OrderItemPayload(item.getProductId(), item.getQuantity(), item.getPrice()))
+                .toList();
+
+        OrderCancelledEvent event = new OrderCancelledEvent(
+                order.getOrderId(),
+                order.getUserId(),
+                order.getTotalPrice(),
+                order.getOrderedAt(), // 생성 시각 사용
+                itemPayloads
+        );
+
+        kafkaProducer.send("order-cancelled", event);
     }
 }
