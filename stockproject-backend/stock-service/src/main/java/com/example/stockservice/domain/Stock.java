@@ -31,4 +31,8 @@ public class Stock {
         this.productId = productId;
         this.quantity = quantity;
     }
+
+    public void increase(Long quantity){
+        this.quantity += quantity;
+    }
 }
