@@ -22,4 +22,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     implementation 'org.springframework.kafka:spring-kafka'
+
+    implementation project(':stockproject-backend:common-dto')
+
+    implementation 'com.example:common-dto:1.0.0'
 }
