@@ -11,4 +11,7 @@ public interface OrderService {
 
     // 주문 단건 조회
     OrderDetailResponseDto getOrderByOrderId(String orderId);
+
+    // 주문 취소 변경
+    void cancelOrder(String orderId);
 }
