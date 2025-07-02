@@ -31,7 +31,7 @@ public class SecurityConfig {
         http
             // http basic, csrf 비활성화
             .httpBasic(AbstractHttpConfigurer::disable)
-            .csrf(AbstractHttpConfigurer::disable)
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**").disable())
 
             // 세션을 사용하지 않으므로 STATELESS로 설정
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
