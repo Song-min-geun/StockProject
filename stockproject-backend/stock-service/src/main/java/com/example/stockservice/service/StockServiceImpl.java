@@ -45,14 +45,9 @@ public class StockServiceImpl implements StockService {
         log.info("재고 복구 로직 실행합니다. orderId : {}", event.orderId());
 
         for (OrderItemPayload item : event.items()) {
-            // 1. PESSIMISTIC_WRITE 락을 걸고 재고 정보를 조회합니다.
             Stock stock = stockRepository.findByProductId(item.productId())
-                    .orElseThrow(() -> new IllegalArgumentException("상품에 대한 재고 정보가 없습니다."));
-
-            // 2. Entity 내부의 비즈니스 로직을 통해 재고를 차감합니다.
-            log.info("기존 재고: {}, 요청 수량: {}", stock.getQuantity(), item.quantity());
+                    .orElseThrow(()-> new IllegalArgumentException("상품에 대한 재고 정보가 없습니다."));
             stock.increase(item.quantity().longValue());
-            log.info("차감 후 재고: {}", stock.getQuantity());
         }
     }
 }
