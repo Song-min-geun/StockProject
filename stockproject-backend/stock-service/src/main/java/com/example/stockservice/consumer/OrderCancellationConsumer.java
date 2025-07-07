@@ -20,7 +20,6 @@ public class OrderCancellationConsumer {
     public void listen(String message) {
         log.info("Received order cancellation message: {}", message);
         try {
-            // 수정된 DTO로 메시지 역직렬화
             OrderCancelledEvent event = objectMapper.readValue(message, OrderCancelledEvent.class);
             stockService.increaseStock(event);
         } catch (Exception e) {
