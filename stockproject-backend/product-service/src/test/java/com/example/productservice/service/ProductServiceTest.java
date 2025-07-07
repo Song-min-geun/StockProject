@@ -1,9 +1,8 @@
-package com.example.productservice;
+package com.example.productservice.service;
 
 import com.example.productservice.domain.Product;
 import com.example.productservice.dto.request.ProductRegistrationRequest;
 import com.example.productservice.repository.ProductRepository;
-import com.example.productservice.service.ProductService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
