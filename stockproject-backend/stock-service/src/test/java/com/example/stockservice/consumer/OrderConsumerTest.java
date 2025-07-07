@@ -40,7 +40,7 @@ class OrderConsumerTest {
 
     @Test
     @DisplayName("주문 생성 이벤트 메시지 수신 시, StockService의 decreaseStock 메소드를 호출한다")
-    void listen_OrderCreatedEvent_Success() throws JsonProcessingException, InterruptedException {
+    void listen_OrderCreatedEvent_Success() throws JsonProcessingException{
         // given
         // Kafka로 보낼 이벤트 객체 생성
         OrderCreatedEvent event = new OrderCreatedEvent(
