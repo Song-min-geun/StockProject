@@ -37,7 +37,7 @@ public class OrderController {
         return ResponseEntity.ok(orderDetails);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{orderId}")
     public ResponseEntity<Void> cancelOrder(@PathVariable("orderId") String orderId){
         orderService.cancelOrder(orderId);
         return ResponseEntity.noContent().build(); // 204 No Content Error
