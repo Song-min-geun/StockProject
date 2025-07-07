@@ -30,6 +30,8 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
 
     // --- H2 데이터베이스 추가 ---
-    // 테스트 실행 시에만 사용할 인메모리 데이터베이스
     testRuntimeOnly 'com.h2database:h2'
+
+    testImplementation 'org.mockito:mockito-core:4.3.1'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.3.1'
 }
