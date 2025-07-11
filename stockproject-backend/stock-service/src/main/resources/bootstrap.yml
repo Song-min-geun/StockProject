@@ -1,0 +1,10 @@
+spring:
+  application:
+    # 이 이름으로 Config 서버에서 설정 파일을 찾습니다 (stock-service.yml).
+    name: stock-service
+  cloud:
+    config:
+      # 2단계에서 만든 Config 서버의 주소를 입력합니다.
+      uri: http://localhost:8888
+server:
+  port: 8083
