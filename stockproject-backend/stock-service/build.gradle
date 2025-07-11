@@ -29,4 +29,8 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:4.3.1'
 
     testImplementation("org.springframework.kafka:spring-kafka-test")
+
+    // spring cloud config
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
 }

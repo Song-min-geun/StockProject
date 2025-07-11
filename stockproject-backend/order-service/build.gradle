@@ -27,4 +27,8 @@ dependencies {
 
     // common-dto를 주입 받음
     implementation project(':stockproject-backend:common-dto')
+
+    // spring cloud config
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
 }

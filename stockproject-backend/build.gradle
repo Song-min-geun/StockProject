@@ -8,10 +8,11 @@ plugins {
 // 'subprojects'는 settings.gradle에 include된 모든 하위 모듈을 의미합니다.
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
     // 공통 그룹 ID와 버전을 설정합니다.
-    group = 'com.stockproject'
+    group = 'com.example'
     version = '0.0.1-SNAPSHOT'
 
     // Java 17 버전을 사용하도록 설정합니다.
@@ -31,10 +32,15 @@ subprojects {
         mavenCentral()
     }
 
-    // Spring Boot가 제공하는 라이브러리들의 버전을 중앙에서 관리합니다.
+    // Spring Cloud 버전을 변수로 선언
+    ext {
+        set('springCloudVersion', "2025.0.0")
+    }
+
+    // 모든 하위 프로젝트가 이 버전 정보를 공유하게 됨
     dependencyManagement {
         imports {
-            mavenBom "org.springframework.boot:spring-boot-dependencies:3.3.0"
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
         }
     }
 
