@@ -35,4 +35,6 @@ dependencies {
 	// spring cloud config
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+
+    runtimeOnly 'com.mysql:mysql-connector-j'
 }
