@@ -1,12 +1,12 @@
 package com.example.productservice.service;
 
 import com.example.productservice.domain.Product;
-import com.example.productservice.dto.request.ProductRegistrationRequest;
+import com.example.productservice.dto.request.ProductRegistrationRequest; // 정확한 DTO 임포트
 import com.example.productservice.dto.response.ProductResponseDto;
 import com.example.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Spring의 Transactional 사용
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public Product registerProduct(ProductRegistrationRequest request) {
+    public Product registerProduct(ProductRegistrationRequest request) { // DTO 타입 수정
         Product product = Product.builder()
                 .name(request.name())
                 .price(request.price())
@@ -29,12 +29,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional(readOnly = true) // 조회 전용 트랜잭션은 readOnly = true 옵션으로 성능 최적화
-    public List<ProductResponseDto> findProductsByIds(List<String> ids) {
-        // Repository를 호출해 Entity 목록을 가져옵니다.
-        List<Product> products = productRepository.findAllByIdIn(ids);
-
-        // Entity 목록을 DTO 목록으로 변환하여 반환합니다.
+    @Transactional(readOnly = true)
+    public List<ProductResponseDto> findProductsByIds(Iterable<String> ids) { // ID 타입을 String으로 수정
+        List<Product> products = productRepository.findAllById(ids);
         return products.stream()
                 .map(ProductResponseDto::fromEntity)
                 .toList();

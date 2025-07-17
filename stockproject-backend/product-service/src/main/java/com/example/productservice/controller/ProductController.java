@@ -1,7 +1,7 @@
 package com.example.productservice.controller;
 
 import com.example.productservice.domain.Product;
-import com.example.productservice.dto.request.ProductRegistrationRequest;
+import com.example.productservice.dto.request.ProductRegistrationRequest; // 정확한 DTO 임포트
 import com.example.productservice.dto.response.ProductResponseDto;
 import com.example.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -20,27 +20,18 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ProductResponseDto> registerProduct(@RequestBody ProductRegistrationRequest request) {
-        // 1. 서비스를 호출하여 상품 등록
+    public ResponseEntity<ProductResponseDto> registerProduct(@RequestBody ProductRegistrationRequest request) { // DTO 타입 수정
         Product registeredProduct = productService.registerProduct(request);
-
-        // 2. 응답 DTO로 변환
         ProductResponseDto responseDto = ProductResponseDto.fromEntity(registeredProduct);
-
-        // 3. 생성된 리소스의 URI를 생성하여 Location 헤더에 담아 201 Created 응답 반환
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(registeredProduct.getId())
                 .toUri();
-
         return ResponseEntity.created(location).body(responseDto);
     }
 
-
-    @GetMapping
-    public ResponseEntity<List<ProductResponseDto>> findProductsByIds(
-            @RequestParam("ids") List<String> ids) {
-
+    @PostMapping("/list") // GET에서 POST로 변경하여 Body로 ID 목록을 받음
+    public ResponseEntity<List<ProductResponseDto>> findProductsByIds(@RequestBody Iterable<String> ids) { // ID 타입을 String으로 수정
         List<ProductResponseDto> products = productService.findProductsByIds(ids);
         return ResponseEntity.ok(products);
     }
