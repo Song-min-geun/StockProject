@@ -3,7 +3,7 @@ package com.example.productservice.dto.response;
 import com.example.productservice.domain.Product;
 
 public record ProductResponseDto (
-    Long productId,
+    String productId,
     String name,
     Long price
 ){

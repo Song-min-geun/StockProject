@@ -39,7 +39,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductResponseDto>> findProductsByIds(
-            @RequestParam("ids") List<Long> ids) {
+            @RequestParam("ids") List<String> ids) {
 
         List<ProductResponseDto> products = productService.findProductsByIds(ids);
         return ResponseEntity.ok(products);

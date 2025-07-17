@@ -14,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    // 1. 자기 자신이 아닌, 데이터베이스와 통신할 Repository를 주입받습니다.
     private final ProductRepository productRepository;
 
     @Override
@@ -29,10 +28,9 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(product);
     }
 
-    // 2. 인터페이스에 정의된 모든 메소드를 구현합니다.
     @Override
     @Transactional(readOnly = true) // 조회 전용 트랜잭션은 readOnly = true 옵션으로 성능 최적화
-    public List<ProductResponseDto> findProductsByIds(List<Long> ids) {
+    public List<ProductResponseDto> findProductsByIds(List<String> ids) {
         // Repository를 호출해 Entity 목록을 가져옵니다.
         List<Product> products = productRepository.findAllByIdIn(ids);
 
