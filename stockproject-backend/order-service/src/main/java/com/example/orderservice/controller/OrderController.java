@@ -31,12 +31,14 @@ public class OrderController {
         return ResponseEntity.created(location).body(responseDto);
     }
 
+    // 주문 검색
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailResponseDto> getOrder(@PathVariable("orderId") String orderId) {
         OrderDetailResponseDto orderDetails = orderService.getOrderByOrderId(orderId);
         return ResponseEntity.ok(orderDetails);
     }
 
+    // 주문 취소
     @DeleteMapping("/{orderId}")
     public ResponseEntity<Void> cancelOrder(@PathVariable("orderId") String orderId){
         orderService.cancelOrder(orderId);
