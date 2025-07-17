@@ -1,7 +1,7 @@
 package com.example.productservice.controller;
 
 import com.example.productservice.domain.Product;
-import com.example.productservice.dto.request.ProductRegistrationRequest; // 정확한 DTO 임포트
+import com.example.productservice.dto.request.ProductRegistrationRequest;
 import com.example.productservice.dto.response.ProductResponseDto;
 import com.example.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,9 @@ public class ProductController {
 
     private final ProductService productService;
 
+    // 상품 등록
     @PostMapping
-    public ResponseEntity<ProductResponseDto> registerProduct(@RequestBody ProductRegistrationRequest request) { // DTO 타입 수정
+    public ResponseEntity<ProductResponseDto> registerProduct(@RequestBody ProductRegistrationRequest request) {
         Product registeredProduct = productService.registerProduct(request);
         ProductResponseDto responseDto = ProductResponseDto.fromEntity(registeredProduct);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -30,8 +31,17 @@ public class ProductController {
         return ResponseEntity.created(location).body(responseDto);
     }
 
-    @PostMapping("/list") // GET에서 POST로 변경하여 Body로 ID 목록을 받음
-    public ResponseEntity<List<ProductResponseDto>> findProductsByIds(@RequestBody Iterable<String> ids) { // ID 타입을 String으로 수정
+    // 상품 단건 조회
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponseDto> findProductById(@PathVariable String productId) {
+        ProductResponseDto product = productService.findProductById(productId);
+        return ResponseEntity.ok(product);
+    }
+    // ===============================
+
+    // 상품 여러 개 조회
+    @PostMapping("/list")
+    public ResponseEntity<List<ProductResponseDto>> findProductsByIds(@RequestBody List<String> ids) {
         List<ProductResponseDto> products = productService.findProductsByIds(ids);
         return ResponseEntity.ok(products);
     }
