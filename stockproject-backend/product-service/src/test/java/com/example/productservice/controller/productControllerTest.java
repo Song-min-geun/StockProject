@@ -15,6 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -104,10 +105,9 @@ public class productControllerTest {
 
         // when & then
         // 2. 컨트롤러가 POST 방식으로 변경되었으므로, Body에 ID 목록(JSON 배열)을 담아 보냅니다.
-        mockMvc.perform(post("/api/v1/product/list")
+        mockMvc.perform(get("/api/v1/product/list")
                         .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestIds)))
+                        .param("ids", requestIds.stream().collect(Collectors.joining(","))))
                 .andExpect(status().isOk()) // HTTP 200 OK 상태 확인
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2))

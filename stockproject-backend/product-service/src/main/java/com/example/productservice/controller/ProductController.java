@@ -40,8 +40,8 @@ public class ProductController {
     // ===============================
 
     // 상품 여러 개 조회
-    @PostMapping("/list")
-    public ResponseEntity<List<ProductResponseDto>> findProductsByIds(@RequestBody List<String> ids) {
+    @GetMapping("/list")
+    public ResponseEntity<List<ProductResponseDto>> findProductsByIds(@RequestParam List<String> ids) {
         List<ProductResponseDto> products = productService.findProductsByIds(ids);
         return ResponseEntity.ok(products);
     }
