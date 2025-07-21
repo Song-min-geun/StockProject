@@ -9,13 +9,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DataMongoTest
+// DataMongoTest 어노테이션에, 테스트에 방해되는 유레카 클라이언트 자동 설정을 제외하도록 명시
+@DataMongoTest(excludeAutoConfiguration = EurekaClientAutoConfiguration.class)
 class ProductServiceTest {
 
     @Autowired
@@ -39,7 +41,6 @@ class ProductServiceTest {
         Product registeredProduct = productService.registerProduct(request);
 
         // then
-        // assertThat을 사용하여 null 체크와 값 검증을 동시에 수행
         assertThat(registeredProduct).isNotNull();
         assertThat(registeredProduct.getId()).isNotNull();
         assertThat(registeredProduct.getName()).isEqualTo("테스트 상품");
@@ -57,7 +58,6 @@ class ProductServiceTest {
         Product registeredProduct = productService.registerProduct(request);
 
         // then
-        // 등록된 객체가 null이 아님을 먼저 확인
         assertThat(registeredProduct).isNotNull();
         Optional<Product> foundProductOpt = productRepository.findById(registeredProduct.getId());
 
@@ -85,7 +85,6 @@ class ProductServiceTest {
         ProductResponseDto foundProductDto = productService.findProductById(productId);
 
         // then
-        // assertThat을 사용하여 null 체크와 값 검증을 동시에 수행
         assertThat(foundProductDto).isNotNull();
         assertThat(foundProductDto.productId()).isEqualTo(productId);
         assertThat(foundProductDto.name()).isEqualTo("조회용 상품");
