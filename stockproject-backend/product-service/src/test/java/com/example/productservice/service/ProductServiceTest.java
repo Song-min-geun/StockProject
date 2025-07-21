@@ -23,7 +23,7 @@ public class ProductServiceTest {
 
     @AfterEach
     void tearDown(){
-        productRepository.deleteAllInBatch();
+        productRepository.deleteAll();
     }
 
     @Test
