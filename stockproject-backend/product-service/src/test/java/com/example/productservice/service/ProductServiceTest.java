@@ -2,76 +2,93 @@ package com.example.productservice.service;
 
 import com.example.productservice.domain.Product;
 import com.example.productservice.dto.request.ProductRegistrationRequest;
+import com.example.productservice.dto.response.ProductResponseDto;
 import com.example.productservice.repository.ProductRepository;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-@SpringBootTest
-public class ProductServiceTest {
-
-    @Autowired
-    private ProductService productService;
+@DataMongoTest
+class ProductServiceTest {
 
     @Autowired
     private ProductRepository productRepository;
 
-    // 각 테스트가 끝난 후 DB를 깨끗하게 정리합니다.
-    @AfterEach
-    void tearDown() {
-        // 1. deleteAllInBatch()는 JPA 전용이므로, MongoRepository의 deleteAll()을 사용합니다.
+    private ProductServiceImpl productService;
+
+    @BeforeEach
+    void setUp() {
+        productService = new ProductServiceImpl(productRepository);
         productRepository.deleteAll();
     }
 
     @Test
     @DisplayName("정상적인 요청이 오면 상품을 성공적으로 등록한다.")
     void registerProduct_Success() {
-        // Given (주어진 상황)
-        final String productName = "테스트 상품";
-        final long price = 10000L;
-        final int initialStock = 100;
-        final ProductRegistrationRequest request = new ProductRegistrationRequest(productName, price, initialStock);
+        // given
+        ProductRegistrationRequest request = new ProductRegistrationRequest("테스트 상품", 10000L, 100);
 
-        // When (행동)
-        final Product registeredProduct = productService.registerProduct(request);
+        // when
+        Product registeredProduct = productService.registerProduct(request);
 
-        // Then (결과)
+        // then
+        // assertThat을 사용하여 null 체크와 값 검증을 동시에 수행
         assertThat(registeredProduct).isNotNull();
-        assertThat(registeredProduct.getId()).isNotNull(); // ID가 생성되었는지 확인
-        assertThat(registeredProduct.getName()).isEqualTo(productName);
-        assertThat(registeredProduct.getPrice()).isEqualTo(price);
-        assertThat(registeredProduct.getStock()).isEqualTo(initialStock);
+        assertThat(registeredProduct.getId()).isNotNull();
+        assertThat(registeredProduct.getName()).isEqualTo("테스트 상품");
+        assertThat(registeredProduct.getPrice()).isEqualTo(10000L);
+        assertThat(registeredProduct.getStock()).isEqualTo(100);
     }
 
     @Test
     @DisplayName("상품을 등록하면, 데이터베이스에서 해당 상품을 조회할 수 있다.")
-    void registerProduct_And_Find_From_Database_Success() {
-        // Given
-        final String productName = "실제 저장될 상품";
-        final long price = 25000L;
-        final int initialStock = 50;
-        final ProductRegistrationRequest request = new ProductRegistrationRequest(productName, price, initialStock);
+    void registerProduct_And_FindItInDB() {
+        // given
+        ProductRegistrationRequest request = new ProductRegistrationRequest("DB 저장 테스트 상품", 5000L, 50);
 
-        // When
-        Product savedProduct = productService.registerProduct(request);
+        // when
+        Product registeredProduct = productService.registerProduct(request);
 
-        // Then
-        assertThat(savedProduct).isNotNull();
+        // then
+        // 등록된 객체가 null이 아님을 먼저 확인
+        assertThat(registeredProduct).isNotNull();
+        Optional<Product> foundProductOpt = productRepository.findById(registeredProduct.getId());
 
-        // 2. 저장된 객체의 실제 String ID를 가져옵니다.
-        String savedProductId = savedProduct.getId();
+        assertTrue(foundProductOpt.isPresent(), "등록된 상품을 DB에서 찾을 수 있어야 합니다.");
+        Product foundProduct = foundProductOpt.get();
 
-        // 3. 그 ID를 사용해 데이터베이스에서 직접 조회합니다.
-        Product foundProduct = productRepository.findById(savedProductId)
-                .orElseThrow(() -> new AssertionError("저장된 상품을 찾을 수 없습니다."));
+        assertThat(foundProduct.getId()).isEqualTo(registeredProduct.getId());
+        assertThat(foundProduct.getName()).isEqualTo("DB 저장 테스트 상품");
+        assertThat(foundProduct.getPrice()).isEqualTo(5000L);
+        assertThat(foundProduct.getStock()).isEqualTo(50);
+    }
 
-        assertThat(foundProduct.getName()).isEqualTo(productName);
-        assertThat(foundProduct.getPrice()).isEqualTo(price);
-        assertThat(foundProduct.getStock()).isEqualTo(initialStock);
+    @Test
+    @DisplayName("상품 ID로 단일 상품을 성공적으로 조회한다.")
+    void findProductById_Success() {
+        // given
+        Product savedProduct = productRepository.save(Product.builder()
+                .name("조회용 상품")
+                .price(12000L)
+                .stock(10)
+                .build());
+        String productId = savedProduct.getId();
+
+        // when
+        ProductResponseDto foundProductDto = productService.findProductById(productId);
+
+        // then
+        // assertThat을 사용하여 null 체크와 값 검증을 동시에 수행
+        assertThat(foundProductDto).isNotNull();
+        assertThat(foundProductDto.productId()).isEqualTo(productId);
+        assertThat(foundProductDto.name()).isEqualTo("조회용 상품");
+        assertThat(foundProductDto.price()).isEqualTo(12000L);
     }
 }
