@@ -9,15 +9,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
+import org.springframework.test.context.ActiveProfiles; // 이 부분을 import 합니다.
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-// DataMongoTest 어노테이션에, 테스트에 방해되는 유레카 클라이언트 자동 설정을 제외하도록 명시
-@DataMongoTest(excludeAutoConfiguration = EurekaClientAutoConfiguration.class)
+@ActiveProfiles("test") // "test" 프로필을 활성화하여 테스트 전용 설정을 사용하도록 지정
+@DataMongoTest
 class ProductServiceTest {
 
     @Autowired
