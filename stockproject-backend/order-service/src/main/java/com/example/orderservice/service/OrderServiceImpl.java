@@ -87,23 +87,22 @@ public class OrderServiceImpl implements OrderService {
         );
     }
 
-    //productId 여러개를 받아 상품을 리스트로 반환. ("api/v1/product/213,231,222")일 경우 한번에 조회
+    //productId 여러개를 받아 상품을 리스트로 반환. ("api/v1/product/list?ids=213,231,222")일 경우 한번에 조회
     private List<ProductResponseDto> getProductInfos(List<Long> productIds) {
-        String idsString = productIds.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
+    // String.join()을 사용하여 더 간결하게 수정
+    String idsString = String.join(",", productIds.stream().map(String::valueOf).toList());
 
-        ProductResponseDto[] response = webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/api/v1/products")
-                        .queryParam("ids", idsString)
-                        .build())
-                .retrieve()
-                .bodyToMono(ProductResponseDto[].class)
-                .block();
+    ProductResponseDto[] response = webClient.get()
+            .uri(uriBuilder -> uriBuilder
+                    .path("/api/v1/product/list")
+                    .queryParam("ids", idsString)
+                    .build())
+            .retrieve()
+            .bodyToMono(ProductResponseDto[].class)
+            .block();
 
-        return response == null ? List.of() : Arrays.asList(response); // true일 경우 빈리스트, false일 경우 리스트 반환
-    }
+    return response == null ? List.of() : Arrays.asList(response);
+}
 
     @Override
     @Transactional(readOnly = true)
