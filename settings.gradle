@@ -1,0 +1,10 @@
+// 최상위 루트 프로젝트의 이름을 'StockProject'으로 정의합니다.
+rootProject.name = 'stockproject-backend'
+
+// 이 빌드에 포함시킬 하위 모듈들의 '주소'를 정확히 기입합니다.
+// '그룹 폴더명:실제 모듈명' 형식입니다.
+include 'stockproject-backend:product-service'
+include 'stockproject-backend:order-service'
+include 'stockproject-backend:stock-service'
+include 'stockproject-backend:user-service'
+include 'stockproject-backend:common-dto'

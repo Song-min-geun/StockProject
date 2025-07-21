@@ -1,0 +1,18 @@
+#spring:
+#  kafka:
+#    consumer:
+#      # 접속할 Kafka 브로커의 주소 목록
+#      bootstrap-servers: localhost:9092
+#
+#      # 이 컨슈머가 속할 그룹의 ID.
+#      # 동일한 그룹 ID를 가진 컨슈머들은 하나의 토픽의 메시지를 나눠서 처리합니다.
+#      group-id: stock-service-group
+#
+#      # 컨슈머가 읽을 위치를 잃어버렸을 때, 가장 처음부터(earliest) 메시지를 읽도록 설정
+#      # 서비스를 재시작해도 놓치는 메시지가 없게 하기 위함입니다.
+#      auto-offset-reset: earliest
+#
+#      # 메시지의 키와 값을 어떤 타입으로 변환(역직렬화)할지 지정합니다.
+#      # Producer에서 문자열(JSON)로 보냈으므로, 여기서도 문자열로 받습니다.
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer

@@ -1,0 +1,39 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+bootJar {
+    enabled = true
+}
+
+dependencies {
+    // 주문 서비스에 필요한 의존성들을 선언합니다.
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'com.h2database:h2'
+
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // common-dto를 주입 받음
+    implementation project(':stockproject-backend:common-dto')
+
+    // spring cloud config
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+
+    implementation 'com.h2database:h2'
+    runtimeOnly 'com.mysql:mysql-connector-j' // MySQL 드라이버
+
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+}
