@@ -23,7 +23,7 @@ subprojects {
     }
 
     // 소스 코드의 인코딩을 UTF-8로 설정합니다.
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8'
     }
 
@@ -47,5 +47,6 @@ subprojects {
     // 모든 모듈의 테스트는 JUnit5 플랫폼을 사용하도록 설정합니다.
     tasks.named('test') {
         useJUnitPlatform()
+        systemProperty 'eureka.client.enabled', 'false'
     }
 }

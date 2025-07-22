@@ -16,7 +16,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ActiveProfiles("test") // "test" 프로필을 활성화하여 테스트 전용 설정을 사용하도록 지정
+@ActiveProfiles("test")
 @DataMongoTest
 class ProductServiceTest {
 
