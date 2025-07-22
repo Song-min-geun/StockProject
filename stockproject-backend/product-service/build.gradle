@@ -48,7 +48,6 @@ dependencies {
 
     implementation 'org.apache.commons:commons-lang3:3.18.0'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
     testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.16.1'
+
 }

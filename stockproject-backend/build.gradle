@@ -44,7 +44,7 @@ subprojects {
         }
     }
 
-    // 모든 모듈의 테스트는 JUnit5 플랫폼을 사용하도록 설정합니다.
+    // 모든 모듈의 테스트는 JUnit5 플랫폼을 사용하도록 설정합니다. test시 eureka false
     tasks.named('test') {
         useJUnitPlatform()
         systemProperty 'eureka.client.enabled', 'false'
