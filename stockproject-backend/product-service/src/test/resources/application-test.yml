@@ -2,7 +2,7 @@ spring:
   data:
     mongodb:
       database: test
-#      uri: mongodb://localhost:27017/test-db
+      uri: mongodb://localhost:27017/test
   cloud:
     config:
       enabled: false
