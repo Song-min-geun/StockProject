@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      database: test-db
+      database: test
 #      uri: mongodb://localhost:27017/test-db
   cloud:
     config:
@@ -10,3 +10,8 @@ spring:
 eureka:
   client:
     enabled: false
+
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
+    com.mongodb: DEBUG
