@@ -32,7 +32,7 @@ jobs:
         with:
           context: ./user-service  # user-service의 Dockerfile 위치.
           push: true                # Docker Hub로 푸시
-          tags: YOUR_DOCKERHUB_USERNAME/user-service:latest # "YOUR_DOCKERHUB_USERNAME"을 본인 ID로!
+          tags: minkeon44883/user-service:latest # "YOUR_DOCKERHUB_USERNAME"을 본인 ID로!
 
       # (나머지 서비스들도 위와 같은 방식으로 추가: order-service, product-service 등)
       # - name: Build and push order-service ...
@@ -51,14 +51,14 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}         # .pem 키 내용
           script: | # 서버에 접속해서 실행할 명령어들
             # Docker Hub에서 최신 이미지 받아오기
-            docker pull YOUR_DOCKERHUB_USERNAME/user-service:latest
+            docker pull minkeon44883/user-service:latest
 
             # 기존에 실행 중인 컨테이너가 있다면 중지하고 삭제
             docker stop user-service || true
             docker rm user-service || true
 
             # 새로운 이미지로 컨테이너 실행 (포트 설정 주의!)
-            docker run -d --name user-service -p 8081:8081 YOUR_DOCKERHUB_USERNAME/user-service:latest
+            docker run -d --name user-service -p 8081:8081 minkeon44883/user-service:latest
 
             # (나머지 서비스들도 위와 같이 추가, 포트 번호 겹치지 않게 주의!)
 
