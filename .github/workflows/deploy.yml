@@ -1,12 +1,13 @@
 # .github/workflows/deploy.yml
 
-name: CI/CD - Build, Push, and Deploy
+name: CI/CD - Build, Push, and Deploy All Services
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
+  # --- 첫 번째 잡: 모든 서비스의 Docker 이미지 빌드 및 푸시 ---
   build-and-push:
     runs-on: ubuntu-latest
     steps:
@@ -21,17 +22,17 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 3. Docker 이미지 빌드 및 푸시 (각 서비스마다)
-      # user-service 빌드
+      # 3. 각 서비스의 Docker 이미지 빌드 및 푸시
+      # user-service
       - name: Build and push user-service
         uses: docker/build-push-action@v4
         with:
-          context: .  # ⭐️ 빌드 컨텍스트를 프로젝트 전체로 변경
-          file: ./stockproject-backend/user-service/Dockerfile # ⭐️ 사용할 Dockerfile을 직접 지정
+          context: .
+          file: ./stockproject-backend/user-service/Dockerfile
           push: true
           tags: minkeon44883/user-service:latest
 
-      # order-service 빌드
+      # order-service
       - name: Build and push order-service
         uses: docker/build-push-action@v4
         with:
@@ -40,11 +41,27 @@ jobs:
           push: true
           tags: minkeon44883/order-service:latest
 
-      # (product-service, stock-service 등 나머지 서비스들도 위와 같이 추가)
+      # product-service
+      - name: Build and push product-service
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./stockproject-backend/product-service/Dockerfile
+          push: true
+          tags: minkeon44883/product-service:latest
 
+      # stock-service
+      - name: Build and push stock-service
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./stockproject-backend/stock-service/Dockerfile
+          push: true
+          tags: minkeon44883/stock-service:latest
 
+  # --- 두 번째 잡: 서버에 접속해서 모든 서비스 배포 ---
   deploy:
-    needs: build-and-push
+    needs: build-and-push # build-and-push 잡이 성공해야만 실행됨
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to EC2
@@ -54,18 +71,29 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # user-service 배포
+            # === user-service 배포 (포트: 8081) ===
             docker pull minkeon44883/user-service:latest
             docker stop user-service || true
             docker rm user-service || true
             docker run -d --name user-service -p 8081:8081 minkeon44883/user-service:latest
 
-            # order-service 배포
+            # === order-service 배포 (포트: 8082) ===
             docker pull minkeon44883/order-service:latest
             docker stop order-service || true
             docker rm order-service || true
             docker run -d --name order-service -p 8082:8082 minkeon44883/order-service:latest
 
-            # (나머지 서비스들도 배포 스크립트 추가)
+            # === product-service 배포 (포트: 8083) ===
+            docker pull minkeon44883/product-service:latest
+            docker stop product-service || true
+            docker rm product-service || true
+            docker run -d --name product-service -p 8083:8083 minkeon44883/product-service:latest
 
+            # === stock-service 배포 (포트: 8084) ===
+            docker pull minkeon44883/stock-service:latest
+            docker stop stock-service || true
+            docker rm stock-service || true
+            docker run -d --name stock-service -p 8084:8084 minkeon44883/stock-service:latest
+
+            # === 사용하지 않는 Docker 이미지 정리 ===
             docker image prune -f
