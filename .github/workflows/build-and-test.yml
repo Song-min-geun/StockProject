@@ -30,7 +30,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # 3. gradlew 파일에 실행 권한을 부여합니다. (CI 환경에서 필수)
+    # 3. gradlew 파일에 실행 권한을 부여합니다. (CI 환경에서 필수).
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
 
