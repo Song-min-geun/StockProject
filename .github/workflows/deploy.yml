@@ -1,0 +1,66 @@
+# .github/workflows/deploy.yml
+
+name: CI/CD - Build, Push, and Deploy
+
+# 1. 언제 이 워크플로우를 실행할 것인가?
+# main 브랜치에 push 이벤트가 발생했을 때
+on:
+  push:
+    branches: [ "main" ]
+
+# 2. 어떤 작업(Jobs)들을 실행할 것인가?
+jobs:
+  # --- 첫 번째 잡: Docker 이미지 빌드 및 푸시 ---
+  build-and-push:
+    runs-on: ubuntu-latest # 이 잡은 GitHub 제공 가상서버에서 실행
+    steps:
+      # 1. 소스 코드 체크아웃
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      # 2. Docker Hub 로그인 (나중에 GitHub Secrets에 등록할 정보 사용)
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 3. Docker 이미지 빌드 및 푸시 (서비스마다 반복)
+      # 예시: user-service
+      - name: Build and push user-service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./user-service  # user-service의 Dockerfile 위치
+          push: true                # Docker Hub로 푸시
+          tags: YOUR_DOCKERHUB_USERNAME/user-service:latest # "YOUR_DOCKERHUB_USERNAME"을 본인 ID로!
+
+      # (나머지 서비스들도 위와 같은 방식으로 추가: order-service, product-service 등)
+      # - name: Build and push order-service ...
+
+  # --- 두 번째 잡: 서버에 접속해서 배포 ---
+  deploy:
+    needs: build-and-push # build-and-push 잡이 성공해야만 실행됨
+    runs-on: ubuntu-latest # 이 잡도 GitHub 제공 가상서버에서 실행
+    steps:
+      - name: Deploy to EC2
+        # SSH 원격 접속을 도와주는 검증된 Action 사용
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}             # 서버 IP 주소
+          username: ${{ secrets.EC2_USERNAME }}      # ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}         # .pem 키 내용
+          script: | # 서버에 접속해서 실행할 명령어들
+            # Docker Hub에서 최신 이미지 받아오기
+            docker pull YOUR_DOCKERHUB_USERNAME/user-service:latest
+
+            # 기존에 실행 중인 컨테이너가 있다면 중지하고 삭제
+            docker stop user-service || true
+            docker rm user-service || true
+
+            # 새로운 이미지로 컨테이너 실행 (포트 설정 주의!)
+            docker run -d --name user-service -p 8081:8081 YOUR_DOCKERHUB_USERNAME/user-service:latest
+
+            # (나머지 서비스들도 위와 같이 추가, 포트 번호 겹치지 않게 주의!)
+
+            # 사용하지 않는 Docker 이미지 정리 (서버 용량 관리)
+            docker image prune -f
