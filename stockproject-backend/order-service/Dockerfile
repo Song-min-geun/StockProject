@@ -1,48 +1,27 @@
-# ==================================
-# 1. 빌드(Build) 단계
-# ==================================
-# - Java 17 및 Gradle 환경을 사용하여 프로젝트를 빌드합니다.
-# - 빌드에 필요한 의존성만 먼저 받아와서 레이어 캐싱을 활용, 빌드 속도를 높입니다.
-FROM gradle:8.5.0-jdk17-jammy AS builder
+# 이 Dockerfile은 프로젝트의 최상위 폴더에서 실행되도록 설계되었습니다.
 
-# 작업 디렉토리 설정
-WORKDIR /build
+# --- STAGE 1: Gradle을 이용해 Jar 파일 빌드 ---
+FROM gradle:8.5-jdk17-focal AS builder
 
-# 빌드에 필요한 파일만 먼저 복사하여 Docker 레이어 캐싱을 극대화
-COPY build.gradle settings.gradle ./
-COPY gradle ./gradle
-
-# 의존성 다운로드 (이 단계는 의존성이 변경될 때만 다시 실행됩니다)
-RUN gradle dependencies
-
-# 전체 소스 코드 복사
-COPY src ./src
-
-# Gradle 빌드 실행 (테스트는 생략하여 빌드 시간 단축)
-RUN gradle build --no-daemon -x test
-
-
-# ==================================
-# 2. 실행(Runtime) 단계
-# ==================================
-# - 실제 서비스 실행에 필요한 최소한의 환경만 포함하여 이미지 크기를 줄이고 보안을 강화합니다.
-# - 빌드 단계에서 생성된 JAR 파일만 가져와서 사용합니다.
-FROM eclipse-temurin:17-jre-jammy
-
-# 작업 디렉토리 설정
+# 컨테이너 안의 작업 폴더 설정
 WORKDIR /app
 
-# 애플리케이션 실행에 필요한 최소한의 사용자 생성 (보안 강화)
-# - 루트(root) 사용자로 실행하는 것을 방지합니다.
-RUN groupadd --system --gid 1001 appgroup && \
-    useradd --system --uid 1001 --gid appgroup appuser
-USER appuser
+# 프로젝트 전체 파일을 컨테이너 안으로 복사
+# 이렇게 하면 Dockerfile이 필요한 모든 파일(gradlew, settings.gradle, 소스코드 등)에 접근할 수 있습니다.
+COPY . .
 
-# 빌드 단계(builder)에서 생성된 JAR 파일을 복사
-COPY --from=builder /build/build/libs/*.jar app.jar
+# user-service 모듈만 특정해서 빌드 실행 (전체 빌드보다 빠름)
+RUN ./gradlew :stockproject-backend:order-service:build --no-daemon
 
-# 애플리케이션이 사용할 포트를 명시적으로 문서화
-EXPOSE 8080
 
-# 컨테이너 시작 시 애플리케이션 실행
+# --- STAGE 2: 빌드된 Jar 파일로 최종 실행 이미지 생성 ---
+FROM openjdk:17-jdk-slim
+
+# 컨테이너 안의 작업 폴더 설정
+WORKDIR /app
+
+# builder 스테이지에서 빌드된 결과물(.jar 파일)만 복사
+COPY --from=builder /app/stockproject-backend/order-service/build/libs/*.jar app.jar
+
+# 컨테이너가 시작될 때 이 명령어로 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]
