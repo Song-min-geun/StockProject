@@ -30,7 +30,7 @@ jobs:
       - name: Build and push user-service
         uses: docker/build-push-action@v4
         with:
-          context: ./user-service  # user-service의 Dockerfile 위치.
+          context: ./stockproject-backend/user-service  # user-service의 Dockerfile 위치.
           push: true                # Docker Hub로 푸시
           tags: minkeon44883/user-service:latest # "YOUR_DOCKERHUB_USERNAME"을 본인 ID로!
 
