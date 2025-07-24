@@ -2,57 +2,49 @@
 
 name: CI/CD - Build, Push, and Deploy
 
-# 1. 언제 이 워크플로우를 실행할 것인가?
-# main 브랜치에 push 이벤트가 발생했을 때
 on:
   push:
     branches: [ "main" ]
 
-# 2. 어떤 작업(Jobs)들을 실행할 것인가?
 jobs:
-  # --- 첫 번째 잡: 프로젝트 빌드 및 Docker 이미지 생성 ---
   build-and-push:
-    runs-on: ubuntu-latest # 이 잡은 GitHub 제공 가상서버에서 실행
+    runs-on: ubuntu-latest
     steps:
       # 1. 소스 코드 가져오기
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      # 2. JDK 17 설치 (프로젝트에 맞는 버전으로)
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      # 3. gradlew 파일에 실행 권한 부여
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      # 4. Gradle로 프로젝트 빌드 실행!
-      - name: Build with Gradle
-        run: ./gradlew build --no-daemon
-
-      # 5. Docker Hub 로그인
+      # 2. Docker Hub 로그인
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 6. Docker 이미지 빌드 및 Docker Hub에 푸시
+      # 3. Docker 이미지 빌드 및 푸시 (각 서비스마다)
+      # user-service 빌드
       - name: Build and push user-service
         uses: docker/build-push-action@v4
         with:
-          context: ./stockproject-backend/user-service
+          context: .  # ⭐️ 빌드 컨텍스트를 프로젝트 전체로 변경
+          file: ./stockproject-backend/user-service/Dockerfile # ⭐️ 사용할 Dockerfile을 직접 지정
           push: true
           tags: minkeon44883/user-service:latest
 
-      # (나머지 서비스들도 동일하게 추가)
+      # order-service 빌드
+      - name: Build and push order-service
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./stockproject-backend/order-service/Dockerfile
+          push: true
+          tags: minkeon44883/order-service:latest
 
-  # --- 두 번째 잡: 서버에 접속해서 배포 ---
+      # (product-service, stock-service 등 나머지 서비스들도 위와 같이 추가)
+
+
   deploy:
-    needs: build-and-push # build-and-push 잡이 성공해야만 실행됨
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to EC2
@@ -62,8 +54,18 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # user-service 배포
             docker pull minkeon44883/user-service:latest
             docker stop user-service || true
             docker rm user-service || true
             docker run -d --name user-service -p 8081:8081 minkeon44883/user-service:latest
+
+            # order-service 배포
+            docker pull minkeon44883/order-service:latest
+            docker stop order-service || true
+            docker rm order-service || true
+            docker run -d --name order-service -p 8082:8082 minkeon44883/order-service:latest
+
+            # (나머지 서비스들도 배포 스크립트 추가)
+
             docker image prune -f
