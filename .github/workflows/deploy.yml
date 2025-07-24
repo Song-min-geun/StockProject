@@ -27,11 +27,11 @@ jobs:
 
       # 3. gradlew 파일에 실행 권한 부여
       - name: Grant execute permission for gradlew
-        run: chmod +x ./stockproject-backend/gradlew
+        run: chmod +x ./gradlew
 
-      # 4. Gradle로 프로젝트 빌드 실행! (jar 파일 생성)  <- ⭐️ 이 부분이 추가되었습니다!
+      # 4. Gradle로 프로젝트 빌드 실행!
       - name: Build with Gradle
-        run: ./stockproject-backend/gradlew build --no-daemon
+        run: ./gradlew build --no-daemon
 
       # 5. Docker Hub 로그인
       - name: Login to Docker Hub
