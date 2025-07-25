@@ -61,39 +61,27 @@ jobs:
 
   # --- 두 번째 잡: 서버에 접속해서 모든 서비스 배포 ---
   deploy:
-    needs: build-and-push # build-and-push 잡이 성공해야만 실행됨
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to EC2
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2 with Docker Compose
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # === user-service 배포 (포트: 8081) ===
-            docker pull minkeon44883/user-service:latest
-            docker stop user-service || true
-            docker rm user-service || true
-            docker run -d --name user-service -p 8081:8081 minkeon44883/user-service:latest
-
-            # === order-service 배포 (포트: 8082) ===
-            docker pull minkeon44883/order-service:latest
-            docker stop order-service || true
-            docker rm order-service || true
-            docker run -d --name order-service -p 8082:8082 minkeon44883/order-service:latest
-
-            # === product-service 배포 (포트: 8083) ===
-            docker pull minkeon44883/product-service:latest
-            docker stop product-service || true
-            docker rm product-service || true
-            docker run -d --name product-service -p 8083:8083 minkeon44883/product-service:latest
-
-            # === stock-service 배포 (포트: 8084) ===
-            docker pull minkeon44883/stock-service:latest
-            docker stop stock-service || true
-            docker rm stock-service || true
-            docker run -d --name stock-service -p 8084:8084 minkeon44883/stock-service:latest
-
-            # === 사용하지 않는 Docker 이미지 정리 ===
-            docker image prune -f
+            # ⭐️ 1. docker-compose.yml 파일에 GIT_TOKEN 값을 주입하기 위해 .env 파일 생성
+            echo "GIT_TOKEN=${{ secrets.GIT_TOKEN }}" > .env
+            
+            # ⭐️ 2. docker-compose.yml 파일 복사
+            # 이 명령은 GitHub Actions Runner에서 EC2 서버로 파일을 전송합니다.
+            scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            docker-compose.yml .env ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/
+            
+            # ⭐️ 3. Docker Compose로 모든 서비스 실행
+            docker-compose pull # 모든 최신 이미지 받아오기
+            docker-compose up -d # 모든 서비스를 백그라운드에서 실행

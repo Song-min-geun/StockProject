@@ -1,10 +1,26 @@
+# --- 공통 설정 ---
 spring:
   application:
-    # 이 이름으로 Config 서버에서 설정 파일을 찾습니다 (user-service.yml).
     name: user-service
+
+---
+# --- 'local' 프로필: 로컬(IntelliJ)에서 실행 시 ---
+spring:
+  config:
+    activate:
+      on-profile: "local"
   cloud:
     config:
-      # 2단계에서 만든 Config 서버의 주소를 입력합니다.
+      # 로컬 컴퓨터에서 실행 중인 Config 서버를 찾아갑니다.
       uri: http://localhost:8888
-server:
-  port: 8080
+
+---
+# --- 'docker' 프로필: EC2 서버에 배포 시 ---
+spring:
+  config:
+    activate:
+      on-profile: "docker"
+  cloud:
+    config:
+      # Docker 내부 네트워크에 있는 'config-server'라는 이름의 컨테이너를 찾아갑니다.
+      uri: http://config-server:8888
