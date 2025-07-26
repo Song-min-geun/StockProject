@@ -66,18 +66,20 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # ⭐️ 1. EC2 서버에 프로젝트 폴더가 없으면 Git 저장소를 복제(clone)하고, 있으면 해당 폴더로 이동합니다.
+            # 1. EC2 서버에 프로젝트 폴더가 없으면 Git 저장소를 복제(clone)하고, 있으면 해당 폴더로 이동합니다.
             cd ~/stockproject || git clone https://github.com/Song-min-geun/stockproject.git ~/stockproject
             cd ~/stockproject
             
-            # ⭐️ 2. main 브랜치의 최신 코드를 받아옵니다. (docker-compose.yml 최신 버전 확보)
+            # 2. main 브랜치의 최신 코드를 받아옵니다.
             git pull origin main
             
-            # ⭐️ 3. docker-compose.yml이 사용할 .env 파일을 서버에 직접 생성합니다.
+            # 3. .env 파일을 서버에 직접 생성합니다.
             echo "GIT_TOKEN=${{ secrets.GIT_TOKEN }}" > .env
-            # (만약 DB 비밀번호 등 다른 시크릿이 필요하다면 아래에 추가합니다)
-            # echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            # (다른 시크릿들도 필요하다면 여기에 추가)
             
-            # ⭐️ 4. Docker Compose로 모든 서비스를 실행합니다.
-            docker-compose pull # Docker Hub에서 모든 최신 이미지를 받아옵니다.
-            docker-compose up --remove-orphans -d # 모든 서비스를 백그라운드에서 실행하고, 이전 버전의 고아 컨테이너를 삭제합니다.
+            # ⭐️ [수정] 'up'을 실행하기 전에, 'down' 명령어로 기존 서비스를 깨끗하게 정리합니다.
+            docker-compose down
+            
+            # 4. Docker Compose로 모든 서비스를 실행합니다.
+            docker-compose pull
+            docker-compose up -d
