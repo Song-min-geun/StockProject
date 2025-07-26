@@ -1,5 +1,3 @@
-# .github/workflows/deploy.yml
-
 name: CI/CD - Build, Push, and Deploy All Services
 
 on:
@@ -7,22 +5,19 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # --- 첫 번째 잡: 모든 서비스의 Docker 이미지 빌드 및 푸시 ---
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-      # 1. 소스 코드 가져오기
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      # 2. Docker Hub 로그인
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 3. 각 서비스의 Docker 이미지 빌드 및 푸시
+      # 각 서비스의 Docker 이미지 빌드 및 푸시
       # user-service
       - name: Build and push user-service
         uses: docker/build-push-action@v4
@@ -64,9 +59,6 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
       - name: Deploy to EC2 with Docker Compose
         uses: appleboy/ssh-action@master
         with:
@@ -74,14 +66,18 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # ⭐️ 1. docker-compose.yml 파일에 GIT_TOKEN 값을 주입하기 위해 .env 파일 생성
+            # ⭐️ 1. EC2 서버에 프로젝트 폴더가 없으면 Git 저장소를 복제(clone)하고, 있으면 해당 폴더로 이동합니다.
+            cd ~/stockproject || git clone https://github.com/Song-min-geun/stockproject.git ~/stockproject
+            cd ~/stockproject
+            
+            # ⭐️ 2. main 브랜치의 최신 코드를 받아옵니다. (docker-compose.yml 최신 버전 확보)
+            git pull origin main
+            
+            # ⭐️ 3. docker-compose.yml이 사용할 .env 파일을 서버에 직접 생성합니다.
             echo "GIT_TOKEN=${{ secrets.GIT_TOKEN }}" > .env
+            # (만약 DB 비밀번호 등 다른 시크릿이 필요하다면 아래에 추가합니다)
+            # echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             
-            # ⭐️ 2. docker-compose.yml 파일 복사
-            # 이 명령은 GitHub Actions Runner에서 EC2 서버로 파일을 전송합니다.
-            scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            docker-compose.yml .env ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/
-            
-            # ⭐️ 3. Docker Compose로 모든 서비스 실행
-            docker-compose pull # 모든 최신 이미지 받아오기
-            docker-compose up -d # 모든 서비스를 백그라운드에서 실행
+            # ⭐️ 4. Docker Compose로 모든 서비스를 실행합니다.
+            docker-compose pull # Docker Hub에서 모든 최신 이미지를 받아옵니다.
+            docker-compose up --remove-orphans -d # 모든 서비스를 백그라운드에서 실행하고, 이전 버전의 고아 컨테이너를 삭제합니다.
