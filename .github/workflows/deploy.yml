@@ -50,7 +50,7 @@ jobs:
           push: true
           tags: minkeon44883/product-service:latest
 
-      # stock-service
+      # stock-service.
       - name: Build and push stock-service
         uses: docker/build-push-action@v4
         with:
