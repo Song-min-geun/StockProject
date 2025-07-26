@@ -77,9 +77,10 @@ jobs:
             echo "GIT_TOKEN=${{ secrets.GIT_TOKEN }}" > .env
             # (다른 시크릿들도 필요하다면 여기에 추가)
             
-            # ⭐️ [수정] 'up'을 실행하기 전에, 'down' 명령어로 기존 서비스를 깨끗하게 정리합니다.
-            docker-compose down
+            # ⭐️ [수정] 'down' 명령어에 --remove-orphans 옵션을 추가하여,
+            # 더 이상 사용되지 않는 '고아 컨테이너'까지 깨끗하게 정리합니다.
+            docker-compose down --remove-orphans
             
             # 4. Docker Compose로 모든 서비스를 실행합니다.
-            docker-compose pull
-            docker-compose up -d
+            docker-compose pull # Docker Hub에서 모든 최신 이미지를 받아옵니다.
+            docker-compose up -d # 모든 서비스를 백그라운드에서 실행합니다.
