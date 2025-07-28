@@ -1,5 +1,6 @@
 package com.example.stockservice.consumer;
 
+import com.example.dto.OrderCancelledEvent;
 import com.example.dto.OrderCreatedEvent;
 import com.example.stockservice.service.StockService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,11 +19,10 @@ public class OrderConsumer {
     private final StockService stockService;
 
     @KafkaListener(topics = "order-created", groupId = "stock-service-group")
-    public void listen(String message) {
+    public void listenOrderCreation(String message) {
         log.info("Received message: {}", message);
 
         try {
-            // 1. 수신한 JSON 메시지를 OrderCreatedEvent 객체로 변환 (역직렬화)
             OrderCreatedEvent event = objectMapper.readValue(message, OrderCreatedEvent.class);
 
             // 2. 재고 차감 로직이 담긴 서비스 메소드 호출
@@ -33,6 +33,17 @@ public class OrderConsumer {
         } catch (Exception e) {
             log.error("메시지 처리에 실패했습니다: {}", message, e);
             // 에러 처리 로직 (예: 재시도, 에러 로깅 등)
+        }
+    }
+
+    @KafkaListener(topics = "order-cancelled", groupId = "stock-service-group")
+    public void listenOrderDeletion(String message) {
+        log.info("Received order cancellation message: {}", message);
+        try {
+            OrderCancelledEvent event = objectMapper.readValue(message, OrderCancelledEvent.class);
+            stockService.increaseStock(event);
+        } catch (Exception e) {
+            log.error("메시지 처리 실패 (주문 취소): {}", message, e);
         }
     }
 }
