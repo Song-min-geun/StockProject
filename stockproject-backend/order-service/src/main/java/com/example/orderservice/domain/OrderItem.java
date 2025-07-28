@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "order_items")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
     @Id
@@ -15,7 +17,7 @@ public class OrderItem {
     private long id;
 
     @Column(nullable = false)
-    private long productId;
+    private String productId;
 
     @Column(nullable = false)
     private long price;
@@ -27,7 +29,7 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    public OrderItem(long productId, long price, Integer quantity){
+    public OrderItem(String productId, long price, Integer quantity){
         this.productId = productId;
         this.price = price;
         this.quantity = quantity;

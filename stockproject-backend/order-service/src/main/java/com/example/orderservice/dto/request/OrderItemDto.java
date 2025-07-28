@@ -1,6 +1,6 @@
 package com.example.orderservice.dto.request;
 
 public record OrderItemDto(
-    Long productId,
+    String productId,
     Integer quantity
 ){}

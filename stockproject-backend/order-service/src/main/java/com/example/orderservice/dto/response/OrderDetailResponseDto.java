@@ -30,7 +30,7 @@ public record OrderDetailResponseDto(
     }
 
     // 내부 DTO
-    public record OrderItemInfo(Long productId, Integer quantity, Long price) {
+    public record OrderItemInfo(String productId, Integer quantity, Long price) {
         public static OrderItemInfo fromEntity(OrderItem item) {
             return new OrderItemInfo(item.getProductId(), item.getQuantity(), item.getPrice());
         }

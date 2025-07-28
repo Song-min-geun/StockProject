@@ -31,15 +31,15 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponseDto createOrder(OrderRequestDto requestDto) { //userId, Items
         // 1. 요청된 상품 ID 목록 추출
-        List<Long> productIds = requestDto.items().stream()
-                .map(OrderItemDto::productId)
-                .toList();
+        List<String> productIds = requestDto.items().stream() // List<Long> -> List<String>
+        .map(OrderItemDto::productId)
+        .toList();
 
         // 2. Product-Service API를 호출하여 상품 정보 목록 조회
         List<ProductResponseDto> productInfos = getProductInfos(productIds);
 
         // 3. 상품 정보를 빠르게 조회할 수 있도록 Map으로 변환
-        Map<Long, ProductResponseDto> productMap = productInfos.stream()
+        Map<String, ProductResponseDto> productMap = productInfos.stream()
                 .collect(Collectors.toMap(ProductResponseDto::productId, product -> product));
 
         // 4. OrderItem Entity 목록 생성 및 재고 확인
@@ -88,12 +88,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     //productId 여러개를 받아 상품을 리스트로 반환. ("api/v1/product/list?ids=213,231,222")일 경우 한번에 조회
-    private List<ProductResponseDto> getProductInfos(List<Long> productIds) {
-    // String.join()을 사용하여 더 간결하게 수정
-    String idsString = String.join(",", productIds.stream().map(String::valueOf).toList());
+    private List<ProductResponseDto> getProductInfos(List<String> productIds) {
+    String idsString = String.join(",", productIds);
 
     ProductResponseDto[] response = webClient.get()
             .uri(uriBuilder -> uriBuilder
+                    // ⭐️ 3. "http://localhost:8081" 대신 서비스 이름 "product-service"를 사용합니다.
+                    .scheme("http").host("product-service")
                     .path("/api/v1/product/list")
                     .queryParam("ids", idsString)
                     .build())
