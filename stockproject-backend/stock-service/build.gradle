@@ -14,7 +14,6 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'com.h2database:h2'
 
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
@@ -31,9 +30,8 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
 
-    implementation 'com.h2database:h2'
-    runtimeOnly 'com.mysql:mysql-connector-j' // MySQL 드라이버
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'io.netty:netty-resolver-dns-native-macos'
 }

@@ -1,7 +1,10 @@
 # --- 공통 설정 ---
 spring:
   application:
-    name: order-service
+    name: ORDER-SERVICE
+
+server:
+  port: 8081
 
 ---
 # --- 'local' 프로필: 로컬(IntelliJ)에서 실행 시 ---
