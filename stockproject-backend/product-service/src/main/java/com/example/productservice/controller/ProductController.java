@@ -1,7 +1,7 @@
 package com.example.productservice.controller;
 
 import com.example.productservice.domain.Product;
-import com.example.productservice.dto.request.ProductRegistrationRequest;
+import com.example.productservice.dto.request.ProductRegistrationRequestDto;
 import com.example.productservice.dto.response.ProductResponseDto;
 import com.example.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class ProductController {
 
     // 상품 등록
     @PostMapping
-    public ResponseEntity<ProductResponseDto> registerProduct(@RequestBody ProductRegistrationRequest request) {
+    public ResponseEntity<ProductResponseDto> registerProduct(@RequestBody ProductRegistrationRequestDto request) {
         Product registeredProduct = productService.registerProduct(request);
         ProductResponseDto responseDto = ProductResponseDto.fromEntity(registeredProduct);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -44,5 +44,12 @@ public class ProductController {
     public ResponseEntity<List<ProductResponseDto>> findProductsByIds(@RequestParam List<String> ids) {
         List<ProductResponseDto> products = productService.findProductsByIds(ids);
         return ResponseEntity.ok(products);
+    }
+
+    // 상품 등록 취소
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable String productId){
+        productService.deleteProduct(productId);
+        return ResponseEntity.noContent().build();
     }
 }
