@@ -1,23 +1,27 @@
 package com.example.stockservice.domain;
 
-import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
-@Entity
+// redis key : "stock:101"
+@RedisHash("stock")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Stock {
 
+    // ⭐️ productId를 Redis의 Key로 사용하기 위해 @Id로 지정합니다.
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true, nullable = false)
     private Long productId;
 
     private Long quantity;
+
+    public Stock(Long productId, Long quantity) {
+        this.productId = productId;
+        this.quantity = quantity;
+    }
 
     //== 비즈니스 로직 ==//
     public void decrease(Long requestedQuantity) {
@@ -27,12 +31,7 @@ public class Stock {
         this.quantity -= requestedQuantity;
     }
 
-    public Stock(Long productId, Long quantity){
-        this.productId = productId;
-        this.quantity = quantity;
-    }
-
-    public void increase(Long quantity){
+    public void increase(Long quantity) {
         this.quantity += quantity;
     }
 }

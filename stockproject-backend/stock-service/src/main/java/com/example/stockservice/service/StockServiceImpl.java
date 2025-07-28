@@ -19,23 +19,21 @@ public class StockServiceImpl implements StockService {
     private final StockRepository stockRepository;
 
     @Override
-    @Transactional
+    @Transactional // Spring Data Redis도 트랜잭션을 지원합니다.
     public void decreaseStock(OrderCreatedEvent event) {
         log.info("재고 차감 로직을 실행합니다. OrderId: {}", event.orderId());
 
         for (OrderItemPayload item : event.items()) {
-            // 1. PESSIMISTIC_WRITE 락을 걸고 재고 정보를 조회합니다.
-            Stock stock = stockRepository.findByProductId(item.productId())
+            // ⭐️ JpaRepository의 findByProductId 대신, CrudRepository의 findById를 사용합니다.
+            Stock stock = stockRepository.findById(item.productId())
                     .orElseThrow(() -> new IllegalArgumentException("상품에 대한 재고 정보가 없습니다."));
 
-            // 2. Entity 내부의 비즈니스 로직을 통해 재고를 차감합니다.
             log.info("기존 재고: {}, 요청 수량: {}", stock.getQuantity(), item.quantity());
             stock.decrease(item.quantity().longValue());
             log.info("차감 후 재고: {}", stock.getQuantity());
 
-            // 3. @Transactional 어노테이션에 의해 메소드가 종료될 때,
-            // 변경된 Stock 엔티티가 자동으로 DB에 UPDATE 됩니다 (Dirty Checking).
-            // stockRepository.save(stock)를 명시적으로 호출할 필요가 없습니다.
+            // ⭐️ 변경된 재고 정보를 Redis에 다시 저장(덮어쓰기)합니다.
+            stockRepository.save(stock);
         }
     }
 
@@ -45,9 +43,10 @@ public class StockServiceImpl implements StockService {
         log.info("재고 복구 로직 실행합니다. orderId : {}", event.orderId());
 
         for (OrderItemPayload item : event.items()) {
-            Stock stock = stockRepository.findByProductId(item.productId())
-                    .orElseThrow(()-> new IllegalArgumentException("상품에 대한 재고 정보가 없습니다."));
+            Stock stock = stockRepository.findById(item.productId())
+                    .orElseThrow(() -> new IllegalArgumentException("상품에 대한 재고 정보가 없습니다."));
             stock.increase(item.quantity().longValue());
+            stockRepository.save(stock);
         }
     }
 }

@@ -9,9 +9,6 @@ bootJar {
 dependencies {
     // 주문 서비스에 필요한 의존성들을 선언합니다.
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-    runtimeOnly 'com.mysql:mysql-connector-j'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -37,4 +34,6 @@ dependencies {
     implementation 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j' // MySQL 드라이버
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
