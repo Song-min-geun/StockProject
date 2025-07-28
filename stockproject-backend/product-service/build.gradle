@@ -53,4 +53,7 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:mongodb'
 
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    implementation project(':stockproject-backend:common-dto')
 }
