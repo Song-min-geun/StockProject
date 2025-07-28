@@ -14,11 +14,11 @@ public class Stock {
 
     // ⭐️ productId를 Redis의 Key로 사용하기 위해 @Id로 지정합니다.
     @Id
-    private Long productId;
+    private String productId;
 
     private Long quantity;
 
-    public Stock(Long productId, Long quantity) {
+    public Stock(String productId, Long quantity) {
         this.productId = productId;
         this.quantity = quantity;
     }
