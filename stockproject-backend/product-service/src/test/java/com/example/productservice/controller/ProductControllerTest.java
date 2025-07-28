@@ -1,7 +1,7 @@
 package com.example.productservice.controller;
 
 import com.example.productservice.domain.Product;
-import com.example.productservice.dto.request.ProductRegistrationRequest;
+import com.example.productservice.dto.request.ProductRegistrationRequestDto;
 import com.example.productservice.dto.response.ProductResponseDto;
 import com.example.productservice.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,7 +43,7 @@ public class ProductControllerTest {
     @WithMockUser
     void registerProduct_Success() throws Exception {
         // given
-        ProductRegistrationRequest requestDto = new ProductRegistrationRequest("테스트 상품", 10000L, 100);
+        ProductRegistrationRequestDto requestDto = new ProductRegistrationRequestDto("테스트 상품", 10000L, 100);
         String fakeMongoId = "60c72b2f9b1e8b3b4c8b4567";
 
         Product savedProduct = Product.builder()
@@ -53,7 +53,7 @@ public class ProductControllerTest {
                 .stock(requestDto.initialStock())
                 .build();
 
-        when(productService.registerProduct(any(ProductRegistrationRequest.class))).thenReturn(savedProduct);
+        when(productService.registerProduct(any(ProductRegistrationRequestDto.class))).thenReturn(savedProduct);
 
         // when & then
         mockMvc.perform(post("/api/v1/product")

@@ -1,7 +1,7 @@
 package com.example.productservice.service;
 
 import com.example.productservice.domain.Product;
-import com.example.productservice.dto.request.ProductRegistrationRequest;
+import com.example.productservice.dto.request.ProductRegistrationRequestDto;
 import com.example.productservice.dto.response.ProductResponseDto;
 import com.example.productservice.repository.ProductRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -49,7 +49,7 @@ class ProductServiceTest {
     @DisplayName("상품을 성공적으로 등록한다")
     void registerProduct_Success() {
         // given
-        ProductRegistrationRequest requestDto = new ProductRegistrationRequest(
+        ProductRegistrationRequestDto requestDto = new ProductRegistrationRequestDto(
                 "TestProduct01",
                 10000L,
                 100
