@@ -1,30 +1,31 @@
+version: '3.8'
 services:
   # --- Spring Cloud 인프라 서비스 ---
   config-server:
-    image: minkeon44883/config-server:latest # config-server의 Docker 이미지
+    image: minkeon44883/config-server:latest
     container_name: config-server
     ports:
       - "8888:8888"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - GIT_TOKEN=${GIT_TOKEN} # EC2 환경변수 또는 .env 파일로 주입
+      - GIT_TOKEN=${GIT_TOKEN}
     networks:
       - stock-net
 
   eureka-server:
-    image: minkeon44883/eureka-server:latest # eureka-server의 Docker 이미지
+    image: minkeon44883/eureka-server:latest
     container_name: eureka-server
     ports:
       - "8761:8761"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      - config-server # config-server가 먼저 실행되도록 보장
+      - config-server
     networks:
       - stock-net
 
   gateway-server:
-    image: minkeon44883/gateway-server:latest # gateway-server의 Docker 이미지
+    image: minkeon44883/gateway-server:latest
     container_name: gateway-server
     ports:
       - "8000:8000"
@@ -90,6 +91,8 @@ services:
     container_name: zookeeper
     ports:
       - "2181:2181"
+    environment: # ⭐️ 이 부분이 추가되었습니다
+      ZOOKEEPER_CLIENT_PORT: 2181
     networks:
       - stock-net
 
@@ -100,12 +103,16 @@ services:
       - "9092:9092"
     depends_on:
       - zookeeper
-    networks:
-      - stock-net
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - stock-net
+
+# --- 모든 서비스가 사용할 공통 네트워크 정의 ---
+networks:
+  stock-net:
