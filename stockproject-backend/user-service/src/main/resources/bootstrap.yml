@@ -1,26 +1,26 @@
-# --- 공통 설정 ---
 spring:
   application:
     name: user-service
-
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        max-attempts: 20
+        initial-interval: 1500
+        max-interval: 3000
 ---
-# --- 'local' 프로필: 로컬(IntelliJ)에서 실행 시 ---
 spring:
   config:
     activate:
       on-profile: "local"
   cloud:
     config:
-      # 로컬 컴퓨터에서 실행 중인 Config 서버를 찾아갑니다.
       uri: http://localhost:8888
-
 ---
-# --- 'docker' 프로필: EC2 서버에 배포 시 ---
 spring:
   config:
     activate:
       on-profile: "docker"
   cloud:
     config:
-      # Docker 내부 네트워크에 있는 'config-server'라는 이름의 컨테이너를 찾아갑니다.
       uri: http://config-server:8888
