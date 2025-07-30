@@ -6,3 +6,7 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+#환경변수제거
+.env
+#.gitignore
+.gitignore
