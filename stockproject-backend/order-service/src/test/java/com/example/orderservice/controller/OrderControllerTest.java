@@ -37,17 +37,16 @@ class OrderControllerTest {
     @MockitoBean
     private OrderService orderService;
 
-
     @Test
     @DisplayName("POST /api/v1/orders 요청 시, 주문을 생성하고 201 Created를 반환한다.")
     @WithMockUser
     void createOrder_Success() throws Exception {
         // given
-        OrderRequestDto requestDto = new OrderRequestDto(1L, List.of(new OrderItemDto(101L, 2)));
+        // ⭐️ productId를 String 타입으로 수정
+        OrderRequestDto requestDto = new OrderRequestDto(1L, List.of(new OrderItemDto("product-id-101", 2)));
         String orderId = UUID.randomUUID().toString();
         OrderResponseDto responseDto = new OrderResponseDto(orderId, "PENDING", 20000L, LocalDateTime.now());
 
-        // orderService.createOrder가 호출되면 위에서 만든 responseDto를 반환하도록 설정
         when(orderService.createOrder(any(OrderRequestDto.class))).thenReturn(responseDto);
 
         // when & then
@@ -55,9 +54,9 @@ class OrderControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isCreated()) // HTTP 201 상태 확인
-                .andExpect(header().string("Location", "http://localhost/api/v1/orders/" + orderId)) // Location 헤더 확인
-                .andExpect(jsonPath("$.orderId").value(orderId)); // 응답 본문의 orderId 확인
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "http://localhost/api/v1/orders/" + orderId))
+                .andExpect(jsonPath("$.orderId").value(orderId));
     }
 
     @Test
@@ -66,30 +65,29 @@ class OrderControllerTest {
     void getOrder_Success() throws Exception {
         // given
         String orderId = UUID.randomUUID().toString();
-        // 주문 상세 정보를 담은 DTO 생성
+        String productId = "product-id-101"; // ⭐️ productId를 String 타입으로 수정
         OrderDetailResponseDto responseDto = new OrderDetailResponseDto(
                 orderId,
                 1L,
                 "PENDING",
                 20000L,
                 LocalDateTime.now(),
-                List.of(new OrderDetailResponseDto.OrderItemInfo(101L, 2, 10000L))
+                List.of(new OrderDetailResponseDto.OrderItemInfo(productId, 2, 10000L)) // ⭐️ 여기도 수정
         );
 
-        // orderService.getOrderByOrderId가 호출되면 위에서 만든 responseDto를 반환하도록 설정
         when(orderService.getOrderByOrderId(orderId)).thenReturn(responseDto);
 
         // when & then
         mockMvc.perform(get("/api/v1/orders/{orderId}", orderId)
                         .with(csrf()))
-                .andExpect(status().isOk()) // HTTP 200 상태 확인
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").value(orderId))
-                .andExpect(jsonPath("$.items.length()").value(1)) // 주문 항목이 1개인지 확인
-                .andExpect(jsonPath("$.items[0].productId").value(101L));
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].productId").value(productId)); // ⭐️ 여기도 수정
     }
 
     @Test
-    @DisplayName("DELETE /api/v1/orders/{orderId} 요청 시, 주문 취소 로직을 호출하고 204 No Content를 반환한다.")
+    @DisplayName("DELETE /api/v1/orders/{orderId} 요청 시, 주문 취소 로직을 호출하고 240 No Content를 반환한다.")
     @WithMockUser
     void cancelOrder_Success() throws Exception {
         // given
