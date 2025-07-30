@@ -40,58 +40,75 @@ services:
   user-service:
     image: minkeon44883/user-service:latest
     container_name: user-service
-    ports:
-      - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     depends_on:
       - gateway-server
+      - db
     networks:
       - stock-net
 
   order-service:
     image: minkeon44883/order-service:latest
     container_name: order-service
-    ports:
-      - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
     depends_on:
       - gateway-server
+      - db
     networks:
       - stock-net
 
   product-service:
     image: minkeon44883/product-service:latest
     container_name: product-service
-    ports:
-      - "8083:8083"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - gateway-server
+      - mongodb
     networks:
       - stock-net
 
   stock-service:
     image: minkeon44883/stock-service:latest
     container_name: stock-service
-    ports:
-      - "8084:8084"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - gateway-server
+      - redis
     networks:
       - stock-net
 
-  # --- 메시징 및 기타 인프라 ---
+  # --- 메시징 및 데이터베이스 ---
+  db:
+    image: mysql:8.0
+    container_name: db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: user_db
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - stock-net
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
     ports:
       - "2181:2181"
-    environment: # ⭐️ 이 부분이 추가되었습니다
+    environment:
       ZOOKEEPER_CLIENT_PORT: 2181
     networks:
       - stock-net
@@ -106,12 +123,13 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - stock-net
+
   redis:
     image: redis:latest
     container_name: redis
@@ -130,9 +148,9 @@ services:
     networks:
       - stock-net
 
-# --- 모든 서비스가 사용할 공통 네트워크 정의 ---
 networks:
   stock-net:
 
 volumes:
+  mysql_data:
   mongodb_data:
