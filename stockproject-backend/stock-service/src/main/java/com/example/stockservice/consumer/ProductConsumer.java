@@ -27,6 +27,7 @@ public class ProductConsumer {
 
             // Redis에 초기 재고 정보 생성
             Stock stock = new Stock(event.productId(), (long) event.initialStock());
+            log.info("event.productId(): {}, event.initialStock(): {}", event.productId(), event.initialStock());
             stockRepository.save(stock);
             log.info("초기 재고 정보를 Redis에 저장했습니다. ProductId: {}", event.productId());
 

@@ -22,6 +22,7 @@ public class UserServiceImpl implements UserService{
     @Transactional
     public void signUp(SignUpRequestDto requestDto){
         if(userRepository.findByEmail(requestDto.email()).isPresent()){
+            System.out.println("이미 사용중인 이메일입니다.");
             throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
         }
         String encodedPassword = passwordEncoder.encode(requestDto.password());
