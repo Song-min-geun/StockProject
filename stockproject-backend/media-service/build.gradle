@@ -1,0 +1,44 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+bootJar {
+    enabled = true
+}
+
+dependencies {
+    // 기본 Spring Boot 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // MSA 기본 구성 요소
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation project(':stockproject-backend:common-dto')
+
+    // --- Media Service 핵심 의존성 ---
+    // AWS S3 연동
+    implementation platform('software.amazon.awssdk:bom:2.20.28')
+    implementation 'software.amazon.awssdk:s3'
+
+    // JAXB (DDEX XML 생성용)
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.2'
+    
+    // --- 미디어 처리 관련 의존성 ---
+    // JSON 처리
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    
+    // 파일 업로드 처리
+    implementation 'commons-io:commons-io:2.11.0'
+    
+    // H2 Database
+    runtimeOnly 'com.h2database:h2'
+}

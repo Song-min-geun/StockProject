@@ -1,0 +1,88 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: media-service
+  
+  datasource:
+    url: jdbc:h2:mem:mediadb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+# FFmpeg 설정
+ffmpeg:
+  path: /usr/local/bin/ffmpeg
+  ffprobe:
+    path: /usr/local/bin/ffprobe
+
+# 미디어 처리 설정
+media:
+  processing:
+    temp-dir: /tmp/media-processing
+    output-dir: /var/media/output
+    max-concurrent-jobs: 5
+  
+  streaming:
+    hls:
+      segment-duration: 10
+      playlist-duration: 60
+    dash:
+      segment-duration: 10
+      adaptation-sets: 3
+  
+  codec:
+    video:
+      default: H.264
+      supported: [H.264, H.265, VP9, AV1]
+    audio:
+      default: AAC
+      supported: [AAC, MP3, FLAC, OPUS]
+
+# DDEX 설정
+ddex:
+  sender:
+    id: SENDER001
+    name: Media Service
+  recipient:
+    id: RECIPIENT001
+    name: Digital Service Provider
+  message:
+    version: 41
+    language: en
+
+# 로깅 설정
+logging:
+  level:
+    com.example.mediaservice: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Eureka 클라이언트 설정
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true 

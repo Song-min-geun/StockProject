@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: media-service
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        max-attempts: 20
+        initial-interval: 1500
+        max-interval: 3000
+---
+spring:
+  config:
+    activate:
+      on-profile: "local"
+  cloud:
+    config:
+      uri: http://localhost:8888
+---
+spring:
+  config:
+    activate:
+      on-profile: "docker"
+  cloud:
+    config:
+      uri: http://config-server:8888

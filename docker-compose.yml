@@ -85,6 +85,16 @@ services:
       - redis
     networks:
       - stock-net
+  media-service:
+    image: minkeon44883/media-service:latest
+    container_name: media-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - gateway-server
+      - kafka
+    networks:
+      - stock-net
 
   # --- 메시징 및 데이터베이스 ---
   db:
